@@ -28,14 +28,18 @@ Elevator::Elevator(int startFloor)
 
 }
 
+/**
+ * Main function to process the elevator, checking waiting passengers and 
+ * book floor so that the other elevators don't come to pick the same 
+ * passengers
+ */
 void Elevator::MoveElevator(int curTime, 
 	std::map<int, std::deque<Passenger>> &waitingPassengers,
 	std::deque<BookedFloor> &bookedFloors)
 {
-	TickTimer();
+	BookFloor(waitingPassengers, bookedFloors);
 	if (IsReady()) {
-
-		BookFloor(waitingPassengers, bookedFloors);
+		
 		switch (curMove)
 		{
 		case ElevatorMove::Idle:
@@ -51,10 +55,55 @@ void Elevator::MoveElevator(int curTime,
 			break;
 		}
 	}
+	TickTimer();
+
+}
+
+/**
+ * return the current floor of the elevator
+ */
+int Elevator::CurFloor()
+{
+	return curFloor;
+}
+
+/**
+ * return the current moving condition of the elevator
+ */
+ElevatorMove Elevator::CurMove()
+{
+	return curMove;
+}
+
+/**
+ * return the current the current status of the elevator
+ */
+ElevatorStatus Elevator::CurStatus()
+{
+	return curStatus;
+}
+
+/**
+ * return the counting of the internal timer of the elevator
+ */
+int Elevator::InternalTimer()
+{
+	return internalTimer;
+}
+
+/**
+ * return the number of passengers left in the elevator
+ */
+int Elevator::PassengerInElevator()
+{
+	return passengerInElevator.size();
 }
 
 
-
+/**
+ * when the timer is ready take the corresponding action according to the 
+ * current status and moving condition
+ */
 void Elevator::TakeTime(ElevatorMove move, int curTime,
 	std::map<int, std::deque<Passenger>>& waitingPassengers, std::deque<BookedFloor>& bookedFloors)
 {
@@ -83,6 +132,7 @@ void Elevator::TakeTime(ElevatorMove move, int curTime,
 	case ElevatorStatus::Closed:
 		if (!targetFloor.empty()) {
 			if (IsTarget()) {
+				popTarget();
 				curStatus = ElevatorStatus::Opening;
 				SetTimer(ElevatorOpenClose);
 			}
@@ -91,15 +141,15 @@ void Elevator::TakeTime(ElevatorMove move, int curTime,
 				curStatus = ElevatorStatus::Moving;
 				if (GoingUp())
 				{
-					move = ElevatorMove::Up;
+					curMove = ElevatorMove::Up;
 				}
 				else {
-					move = ElevatorMove::Down;
+					curMove = ElevatorMove::Down;
 				}
 			}
 		}
 		else {
-			move = ElevatorMove::Idle;
+			curMove = ElevatorMove::Idle;
 		}
 		break;
 
@@ -109,7 +159,7 @@ void Elevator::TakeTime(ElevatorMove move, int curTime,
 
 	case ElevatorStatus::Moving:
 		if (IsTarget()) {
-			targetFloor.pop();
+			popTarget();
 			RefreshBookedFloor(bookedFloors);
 			curStatus = ElevatorStatus::Opening;
 			SetTimer(ElevatorOpenClose);
@@ -129,16 +179,26 @@ void Elevator::TakeTime(ElevatorMove move, int curTime,
 
 }
 
+/**
+ * check if the elevator is overloaded
+ */
 bool Elevator::Overloaded()
 {
 	return curLoad == ElevatorLoad;
 }
 
+/**
+ * if the timer is counting, tick the timer by one
+ */
 void Elevator::TickTimer()
 {
+	if (internalTimer > 0)
 	internalTimer--;
 }
 
+/**
+ * set how much time each action takes to the timer
+ */
 void Elevator::SetTimer(Action action)
 {
 	switch (action)
@@ -155,11 +215,17 @@ void Elevator::SetTimer(Action action)
 	}
 }
 
+/**
+ * check if the current action is ready 
+ */
 bool Elevator::IsReady()
 {
 	return internalTimer == 0;
 }
 
+/**
+ * check if there is passenger in the elevator reaching the target floor 
+ */
 bool Elevator::IfPassengerOut()
 {
 	if (passengerInElevator.find(curFloor) != passengerInElevator.end())
@@ -172,49 +238,79 @@ bool Elevator::IfPassengerOut()
 
 }
 
+/**
+ * check if there is passenger going into the elevator in the current floor
+ */
 bool Elevator::IfPassengerIn(std::map<int, std::deque<Passenger>>& waitingPassengers)
 {
 	return waitingPassengers.find(curFloor) != waitingPassengers.end();
 }
 
+/**
+ * as there are passengers in the elevator, take on of them out of the 
+ * elevator
+ */
 void Elevator::TakeOutPassenger()
 {
 	std::map<int, std::stack<Passenger>>::iterator itr;
 	itr = passengerInElevator.find(curFloor);
-	passengerInElevator.erase(itr);
+	itr->second.pop();
+	if (itr->second.empty())
+	{
+		passengerInElevator.erase(itr);
+	}
+	
 }
 
+/**
+ * as there are passengers waiting outside, take one of them into the 
+ * elevator
+ */
 void Elevator::TakeInPassenger(std::map<int, std::deque<Passenger>>& waitingPassengers)
 {
 	std::map<int, std::deque<Passenger>>::iterator itr;
 	itr = waitingPassengers.find(curFloor);
 	Passenger temp_passenger = itr->second.front();
-	
-	Floor floor(temp_passenger.GetEndFloor(), (temp_passenger.GetEndFloor() - curFloor) > 0);
+	int endFloor = temp_passenger.GetEndFloor();
+	Floor floor(endFloor, (endFloor - curFloor) > 0);
 	targetFloor.push(floor);
-	if (IfPassengerIn(waitingPassengers))
+	if (passengerInElevator.find(endFloor) != passengerInElevator.end())
 	{
-		passengerInElevator[curFloor].push(itr->second.front());
+		passengerInElevator[endFloor].push(itr->second.front());
 	}
 	else {
 		std::stack<Passenger> temp_stack;
 		temp_stack.push(itr->second.front());
-		passengerInElevator[curFloor] = temp_stack;
+		passengerInElevator[endFloor] = temp_stack;
+	}
+	//TODO
+	itr->second.pop_front();
+	if (itr->second.empty())
+	{
+		waitingPassengers.erase(itr);
 	}
 }
 
 
-
+/**
+ * check is the current floor is target floor 
+ */
 bool Elevator::IsTarget()
 {
 	return curFloor == targetFloor.top().targetFloor;
 }
 
+/**
+ * check if the elevator is going up
+ */
 bool Elevator::GoingUp()
 {
 	return targetFloor.top().targetDirectionUp;
 }
 
+/**
+ * take the target floor into the booked floor deque
+ */
 void Elevator::BookFloor(std::map<int, std::deque<Passenger>>& waitingPassengers, std::deque<BookedFloor>& bookedFloors)
 {
 	std::map<int, std::deque<Passenger>>::iterator itr;
@@ -237,7 +333,7 @@ void Elevator::BookFloor(std::map<int, std::deque<Passenger>>& waitingPassengers
 			{
 				if (!targetFloor.empty())
 				{
-					if (directionUp && targetFloor.top().targetDirectionUp)
+					if (directionUp && targetFloor.top().targetDirectionUp && buttonUp)
 					{
 						bookedFloors.push_back(booked);
 						targetFloor.push(target);
@@ -271,23 +367,60 @@ void Elevator::BookFloor(std::map<int, std::deque<Passenger>>& waitingPassengers
 	
 }
 
+/**
+ * check if floor is booked
+ */
 bool Elevator::IsFloorBooked(BookedFloor& floor, std::deque<BookedFloor>& bookedFloors)
 {
 
 	return (std::find(bookedFloors.begin(), bookedFloors.end(), floor) != bookedFloors.end());
 }
 
+/**
+ * when the elevator reaches the target floor, take the target floor out
+ * of the booked floor deque
+ */
 void Elevator::RefreshBookedFloor(std::deque<BookedFloor>& bookedFloors)
 {
 	std::deque<BookedFloor>::iterator itr;
 	if (curMove == ElevatorMove::Down) {
 		BookedFloor floor(curFloor, false);
 		itr = std::find(bookedFloors.begin(), bookedFloors.end(), floor);
+		
 	}
 	if (curMove == ElevatorMove::Up) {
 		BookedFloor floor(curFloor, true);
 		itr = std::find(bookedFloors.begin(), bookedFloors.end(), floor);
 	}
-	bookedFloors.erase(itr);
+	if (itr != bookedFloors.end())
+	{
+		bookedFloors.erase(itr);
+	}
+	
+}
+
+/**
+ * when the elevator has reached the target floor, take the current
+ * floor out the target floor queue
+ */
+void Elevator::popTarget()
+{
+	bool popping = true;
+	while (popping)
+	{
+		if (targetFloor.empty())
+		{
+			popping = false;
+		}
+		else {
+			if (targetFloor.top().targetFloor == curFloor)
+			{
+				targetFloor.pop();
+			}
+			else {
+				popping = false;
+			}
+		}
+	}
 }
 

@@ -50,6 +50,11 @@ private:
 public:
 	Elevator(int startFloor);
 	void MoveElevator(int curTime, std::map<int, std::deque<Passenger>> &waitingPassengers, std::deque<BookedFloor> &bookedFloors);
+	int CurFloor();
+	ElevatorMove CurMove();
+	ElevatorStatus CurStatus();
+	int InternalTimer();
+	int PassengerInElevator();
 
 private:
 	void TakeTime(ElevatorMove move, int curTime, std::map<int, std::deque<Passenger>>& waitingPassengers, std::deque<BookedFloor>& bookedFloors);
@@ -66,4 +71,5 @@ private:
 	void BookFloor(std::map<int, std::deque<Passenger>>& waitingPassengers, std::deque<BookedFloor>& bookedFloors);
 	bool IsFloorBooked(BookedFloor& floor, std::deque<BookedFloor>& bookedFloors);
 	void RefreshBookedFloor(std::deque<BookedFloor>& bookedFloors);
+	void popTarget();
 };

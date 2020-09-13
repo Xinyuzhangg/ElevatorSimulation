@@ -72,13 +72,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\code\ElevtorSimulation\core\core\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\code\ElevatorSimulation\core\core\include;C:\Users\Charles\Downloads\libs\SDL2-devel-2.0.12-VC\SDL2-2.0.12\include;C:\Users\Charles\Downloads\libs\SDL2_ttf-devel-2.0.15-VC\SDL2_ttf-2.0.15\include;C:\Users\Charles\Downloads\libs\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Charles\Downloads\libs\SDL2-devel-2.0.12-VC\SDL2-2.0.12\lib\x86;C:\Users\Charles\Downloads\libs\SDL2_ttf-devel-2.0.15-VC\SDL2_ttf-2.0.15\lib\x86;C:\Users\Charles\Downloads\libs\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\code\ElevatorSimulation\core\core\include;C:\Users\Charles\Downloads\libs\SDL2-devel-2.0.12-VC\SDL2-2.0.12\include;C:\Users\Charles\Downloads\libs\SDL2_ttf-devel-2.0.15-VC\SDL2_ttf-2.0.15\include;C:\Users\Charles\Downloads\libs\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Charles\Downloads\libs\SDL2-devel-2.0.12-VC\SDL2-2.0.12\lib\x64;C:\Users\Charles\Downloads\libs\SDL2_ttf-devel-2.0.15-VC\SDL2_ttf-2.0.15\lib\x64;C:\Users\Charles\Downloads\libs\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -93,6 +96,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -121,6 +125,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,11 +149,13 @@
     <ClCompile Include="src\elevator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\passenger.cpp" />
+    <ClCompile Include="src\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\building.h" />
     <ClInclude Include="include\elevator.h" />
     <ClInclude Include="include\passenger.h" />
+    <ClInclude Include="include\texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,11 +4,15 @@
 #include <vector>
 #include <map>
 #include "elevator.h"
+#include "texture.h"
 
 extern int PassengerNum;
 extern int FloorNum;
 extern int ElevatorNum;
 extern int GlobalTimeCount;
+
+const int WINDOW_WIDTH = 1080;
+const int WINDOW_HEIGHT = 720;
 
 
 class Building {
@@ -18,23 +22,31 @@ private:
 	std::deque<BookedFloor> bookedFloors;
 	std::map<int ,std::deque<Passenger>> passengersInBuilding;
 	std::vector<Elevator> elevatorsInBuilding;
-	
+
+private:
+	SDL_Renderer* gRenderer;
+	SDL_Window* gWindow;
+	TTF_Font* gFont;
+	LTexture gTextTexture;
+	LTexture gElevatorTexture;
+	SDL_Rect  gClips[4];
+
 
 
 
 private:
 	void LoadPassenagers();
 	void ClearBuilding();
-	bool IsElevatorEmpty();
+	bool RenderInit();
+	bool LoadMedia();
 
 
 public:
-	
 	Building();
+
 public:
 	bool Init();
-	bool Execute();
-	void Render();
+	void Execute();
 	void Close();
 
 

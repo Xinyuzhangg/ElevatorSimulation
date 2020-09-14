@@ -5,25 +5,26 @@
 #include <map>
 #include "elevator.h"
 #include "texture.h"
+#include <SDL_mixer.h>
 
-extern int PassengerNum;
+
 extern int FloorNum;
 extern int ElevatorNum;
 extern int GlobalTimeCount;
 
 const int WINDOW_WIDTH = 1080;
-const int WINDOW_HEIGHT = 720;
+const int WINDOW_HEIGHT = 800;
 
 
 class Building {
 private:
-	int totalPassengers;
-	int leftPassengers;
+
 	std::deque<BookedFloor> bookedFloors;
 	std::map<int ,std::deque<Passenger>> passengersInBuilding;
 	std::vector<Elevator> elevatorsInBuilding;
 
 private:
+	Mix_Music* gMusic;
 	SDL_Renderer* gRenderer;
 	SDL_Window* gWindow;
 	TTF_Font* gFont;

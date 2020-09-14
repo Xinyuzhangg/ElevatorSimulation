@@ -11,7 +11,7 @@ bool LTexture::loadFile(SDL_Renderer* gRenderer, std::string path)
 		printf("couldn't load file! SDL error:%s\n", SDL_GetError());
 	}
 	else {
-		SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
+		SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0xFF, 0xFF, 0xFF));
 
 		newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
 		if (newTexture == NULL)
